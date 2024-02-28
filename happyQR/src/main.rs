@@ -92,6 +92,11 @@ fn main() {
                     id += 1;
                 },
                 21 => {
+                    Command::new("convert")
+                    .arg(arg.clone())
+                    .arg(arg.clone() + ".eps")
+                    .output()
+                    .expect("failed to execute process");
                     if mode == 1 {
                         dark_colors.push((PixelTemplate::new(0, 0, 0, arg.to_string(), String::new(), id, 1).unwrap(), perc));
                         dark_colors[0].1 -= perc;

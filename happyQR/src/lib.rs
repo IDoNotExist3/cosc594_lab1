@@ -82,16 +82,37 @@ impl QR {
                 // count+=2;
                 if id != pix.1 {
                     if id % 2 == 0 {
-                        strings.push(
-                            format!("newline poly pcfill {} {} {} color {} {} {} pts {} {}  {} {}  {} {}  {} {}",
-                            self.dark_colors[(id/2) as usize].0.color.red,
-                            self.dark_colors[(id/2) as usize].0.color.green,
-                            self.dark_colors[(id/2) as usize].0.color.blue,
-                            self.dark_colors[(id/2) as usize].0.color.red,
-                            self.dark_colors[(id/2) as usize].0.color.green,
-                            self.dark_colors[(id/2) as usize].0.color.blue,
-                            min, x, count, x, count, x-2, min, x-2,) 
-                        );
+                        match self.dark_colors[(id/2) as usize].0.typ {
+                            0 => {
+                                strings.push(
+                                    format!("newline poly pcfill {} {} {} color {} {} {} pts {} {}  {} {}  {} {}  {} {}",
+                                    self.dark_colors[(id/2) as usize].0.color.red,
+                                    self.dark_colors[(id/2) as usize].0.color.green,
+                                    self.dark_colors[(id/2) as usize].0.color.blue,
+                                    self.dark_colors[(id/2) as usize].0.color.red,
+                                    self.dark_colors[(id/2) as usize].0.color.green,
+                                    self.dark_colors[(id/2) as usize].0.color.blue,
+                                    min, x, count, x, count, x-2, min, x-2,) 
+                                );
+                            }
+                            1 => {
+                                // println!("Imagine dragons");
+                                let mut temp = format!("newcurve eps {} marksize 2 2 pts", self.dark_colors[(id/2) as usize].0.pic.as_str().to_owned() + ".eps");
+                                for i in (min..count).step_by(2) {
+                                    temp += format!(" {} {}", i+1, x-1).as_str();
+                                }
+                                strings.push(temp);
+                                
+                                // strings.push(
+                                //     format!("newcurve eps {} marksize 2 2 pts {} {}", self.dark_colors[(id/2) as usize].0.pic.as_str().to_owned() + ".eps", count, x)
+                                // );
+                            }
+                            2 => {
+                                
+                            }
+                            _ => ()
+                        }
+                        
                     }
                     else {
                         strings.push(
