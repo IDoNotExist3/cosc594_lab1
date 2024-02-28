@@ -3,7 +3,7 @@ I used Rust for this assignment
 
 To compile from the makefile, run:
 
-make
+make all
 
 From there, the program is run like this on the command line, with brackets denoting parts to be replaced by the user:
 
