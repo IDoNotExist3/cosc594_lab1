@@ -1,11 +1,10 @@
 use std::collections::VecDeque;
 use std::fs::File;
-use std::io::{self, BufRead, Error};
+use std::io::{self, BufRead};
 use std::path::Path;
 use std::env;
 use std::process::exit;
 use std::process::Command;
-use regex::Regex;
 use happyQR::{Color, PixelTemplate, QR};
 
 
@@ -25,23 +24,20 @@ fn main() {
         .arg("temp.ppm")
         .output()
         .expect("failed to execute process");
-    // Command::new("rm").arg("temp.png").output().expect("failed to execute process");
-    // let re = Regex::new("--(.*)").unwrap();
-    // let re2 = Regex::new("[=|:](\\D*):(\\d+),(\\d+),(\\d+)").unwrap();
-    // let re3 = Regex::new("[=|:](\\D*),(\\d*):(\\d+),(\\d+),(\\d+)").unwrap();
+    
     let mut dark_colors: Vec<(PixelTemplate, i32)> = vec![];
     dark_colors.push((PixelTemplate::new(0, 0, 0, String::new(), String::new(), 0, 0).unwrap(), 100));
     let mut light_colors: Vec<(PixelTemplate, i32)> = vec![];
-    light_colors.push((PixelTemplate::new(255, 255, 255, String::new(), String::new(), 0, 0).unwrap(), 100));
+    light_colors.push((PixelTemplate::new(255, 255, 255, String::new(), String::new(), 1, 0).unwrap(), 100));
     let mut mode: u32 = 0;
     let mut typ: u32 = 0;
     let (mut red, mut green, mut blue)= (0, 0, 0);
     let mut perc:i32 = 0;
-    // let mut pix: PixelTemplate = Pixel::new(0,0,0,"".to_string(),"".to_string(), 0).unwrap();
-    // let mut pair = (pix, 0.0);
+    let mut output = String::from("testing.jgr");
+
     
     for arg in args {
-        println!("Arg is {}", arg);
+        // println!("Arg is {}", arg);
         if &arg[0..1] == "-" {
             // pair = (Pixel::new(0,0,0,"".to_string(),"".to_string(), 0).unwrap(), 0.0);
             typ = 0;
@@ -49,25 +45,29 @@ fn main() {
             match arg.as_str() {
                 "--dark"=> mode = 1,
                 "--light"=> mode = 2,
+                "--output"=> {mode = 3; typ = 3;},
                 _ => println!("{} is not a valid argument", arg)
             }
         }
-        else if typ == 0 {
+        else if typ == 0 && typ < 3{
             match arg.as_str() {
                 "col" => typ = 10,
                 "img" => typ = 20,
                 "pat" => typ = 30,
                 _ => {println!("Must specify one of following for color, image, or jgraph pattern string:\n 
-                --[dark|light] col [percent] [0-100] [0-100] [0-100]\n
+                --[dark|light] col [percent] [0-255] [0-255] [0-255]\n
                 --[dark|light] img [percent] [pathToFile]\n
                 --[dark|light] pat [percent] [jgraphPatternString]\n
-                For pat the part you supply is what's in brackets in this example pattern, the start and pts at the end are provided:\n
-                newline poly [linethickness 5 color 1 1 0 pcfill 1 0 1 ppattern stripe 60] pts  4 4");
+                For pat the part you supply is what's in brackets in this example pattern , the start and pts at the end are provided:\n
+                newline poly \"[linethickness 5 color 1 1 0 pcfill 1 0 1 ppattern stripe 60]\" pts  4 4  4 6  6 6  6 4");
                 exit(0);}
             }
         }
         else if mode > 0 && typ > 0 {
             match typ {
+                3 => {
+                    output = arg.to_string();
+                }
                 10 | 20 | 30 => {
                     perc = arg.parse::<i32>().unwrap();
                     typ += 1;
@@ -83,42 +83,52 @@ fn main() {
                 13 => {
                     blue = arg.parse::<u32>().unwrap();
                     if mode == 1 {
+                        id = dark_colors.len() as u32 * 2;
                         dark_colors.push((PixelTemplate::new(red, green, blue, String::new(), String::new(), id, 0).unwrap(), perc));
                         dark_colors[0].1 -= perc;
                     }
                     else {
+                        id = (light_colors.len() as u32 * 2) + 1;
                         light_colors.push((PixelTemplate::new(red, green, blue, String::new(), String::new(), id, 0).unwrap(), perc));
                         light_colors[0].1 -= perc;
                     }
                     typ += 1;
-                    id += 1;
+                    // id += 1;
                 },
                 21 => {
                     Command::new("convert")
                     .arg(arg.clone())
-                    .arg(arg.clone() + ".eps")
-                    .output()
-                    .expect("failed to execute process");
+                    .arg("-compress")
+                    .arg("None")
+                    .arg("-resize")
+                    .arg("10%")
+                    .arg("eps2:".to_owned() + arg.clone().as_str() + ".eps")
+                    .output().expect("failed to execute process");
+
                     if mode == 1 {
+                        id = dark_colors.len() as u32 * 2;
                         dark_colors.push((PixelTemplate::new(0, 0, 0, arg.to_string(), String::new(), id, 1).unwrap(), perc));
                         dark_colors[0].1 -= perc;
                     }
                     else {
+                        id = (light_colors.len() as u32 * 2) + 1;
                         light_colors.push((PixelTemplate::new(0, 0, 0, arg.to_string(), String::new(), id, 1).unwrap(), perc));
                         light_colors[0].1 -= perc;
                     }
-                    id +=1;
+                    // id +=1;
                 },
                 31 => {
                     if mode == 1 {
+                        id = dark_colors.len() as u32 * 2;
                         dark_colors.push((PixelTemplate::new(0, 0, 0, String::new(), arg.to_string(), id, 2).unwrap(), perc));
                         dark_colors[0].1 -= perc;
                     }
                     else {
+                        id = (light_colors.len() as u32 * 2) + 1;
                         light_colors.push((PixelTemplate::new(0, 0, 0, String::new(), arg.to_string(), id, 2).unwrap(), perc));
                         light_colors[0].1 -= perc;
                     }
-                    id +=1;
+                    // id +=1;
                 }
                 _ => todo!(),
             }
@@ -132,13 +142,17 @@ fn main() {
         println!("Percentages specified over 100 percent");
         exit(0);
     }
+    // println!("percentage at end is {}", light_colors[0].1);
+    // println!("percentage at end is {}", dark_colors[0].1);
     qr.dark_colors = dark_colors;
     qr.light_colors = light_colors;
+    
 
     let mut first:u32 = 0;
     let mut pixels:Vec<(Color, u32)> = Vec::new();
     let mut nums:Vec<u32> = Vec::new();
     let mut size:usize = 0;
+    
     // let mut count = 0;
     if let Ok(lines) = read_lines("./temp.ppm") {
         // Consumes the iterator, returns an (Optional) String
@@ -166,7 +180,7 @@ fn main() {
         }
     }
     qr.gen_colors();
-    qr.draw_jgraph();
+    qr.draw_jgraph(output);
     // println!("{:?}", pixels);
 }
 
