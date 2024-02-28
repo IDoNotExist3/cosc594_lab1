@@ -92,7 +92,7 @@ impl QR {
                                     self.dark_colors[(id/2) as usize].0.color.red,
                                     self.dark_colors[(id/2) as usize].0.color.green,
                                     self.dark_colors[(id/2) as usize].0.color.blue,
-                                    min, x, count, x, count, x-2, min, x-2,) 
+                                    min, x, count, x, count, x-2, min, x-2) 
                                 );
                             }
                             1 => {
@@ -108,7 +108,12 @@ impl QR {
                                 // );
                             }
                             2 => {
-                                
+                                let mut temp = format!("newline poly {} pts", self.dark_colors[(id/2) as usize].0.pattern.as_str().to_owned());
+                                // for i in (min..count).step_by(2) {
+                                //     temp += format!(" {} {}", i+1, x-1).as_str();
+                                // }
+                                temp += format!(" {} {}  {} {}  {} {}  {} {}", min, x, count, x, count, x-2, min, x-2).as_str();
+                                strings.push(temp);
                             }
                             _ => ()
                         }

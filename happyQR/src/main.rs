@@ -60,7 +60,9 @@ fn main() {
                 _ => {println!("Must specify one of following for color, image, or jgraph pattern string:\n 
                 --[dark|light] col [percent] [0-100] [0-100] [0-100]\n
                 --[dark|light] img [percent] [pathToFile]\n
-                --[dark|light] pat [percent] [jgraphPatternString]");
+                --[dark|light] pat [percent] [jgraphPatternString]\n
+                For pat the part you supply is what's in brackets in this example pattern, the start and pts at the end are provided:\n
+                newline poly [linethickness 5 color 1 1 0 pcfill 1 0 1 ppattern stripe 60] pts  4 4");
                 exit(0);}
             }
         }
