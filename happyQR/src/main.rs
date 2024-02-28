@@ -25,14 +25,14 @@ fn main() {
         .arg("temp.ppm")
         .output()
         .expect("failed to execute process");
-    Command::new("rm").arg("temp.png").output().expect("failed to execute process");
+    // Command::new("rm").arg("temp.png").output().expect("failed to execute process");
     // let re = Regex::new("--(.*)").unwrap();
     // let re2 = Regex::new("[=|:](\\D*):(\\d+),(\\d+),(\\d+)").unwrap();
     // let re3 = Regex::new("[=|:](\\D*),(\\d*):(\\d+),(\\d+),(\\d+)").unwrap();
     let mut dark_colors: Vec<(PixelTemplate, i32)> = vec![];
-    dark_colors.push((PixelTemplate::new(255, 255, 255, String::new(), String::new(), 0, 0).unwrap(), 100));
+    dark_colors.push((PixelTemplate::new(0, 0, 0, String::new(), String::new(), 0, 0).unwrap(), 100));
     let mut light_colors: Vec<(PixelTemplate, i32)> = vec![];
-    light_colors.push((PixelTemplate::new(0, 0, 0, String::new(), String::new(), 0, 0).unwrap(), 100));
+    light_colors.push((PixelTemplate::new(255, 255, 255, String::new(), String::new(), 0, 0).unwrap(), 100));
     let mut mode: u32 = 0;
     let mut typ: u32 = 0;
     let (mut red, mut green, mut blue)= (0, 0, 0);
@@ -42,7 +42,7 @@ fn main() {
     
     for arg in args {
         println!("Arg is {}", arg);
-        if &arg[0..2] == "--" {
+        if &arg[0..1] == "-" {
             // pair = (Pixel::new(0,0,0,"".to_string(),"".to_string(), 0).unwrap(), 0.0);
             typ = 0;
             // let (_, [op, str]) = re.captures(arg.as_str()).unwrap().extract();
@@ -58,9 +58,9 @@ fn main() {
                 "img" => typ = 20,
                 "pat" => typ = 30,
                 _ => {println!("Must specify one of following for color, image, or jgraph pattern string:\n 
-                --[dark|light] col [0-100] [0-100] [0-100]\n
-                --[dark|light] img [pathToFile]\n
-                --[dark|light] pat [jgraphPatternString]");
+                --[dark|light] col [percent] [0-100] [0-100] [0-100]\n
+                --[dark|light] img [percent] [pathToFile]\n
+                --[dark|light] pat [percent] [jgraphPatternString]");
                 exit(0);}
             }
         }
@@ -158,7 +158,7 @@ fn main() {
             // println!("Size is {}", pixels.len());
         }
     }
-
+    qr.gen_colors();
     qr.draw_jgraph();
     // println!("{:?}", pixels);
 }

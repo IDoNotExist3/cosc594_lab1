@@ -1,5 +1,5 @@
 use qrcode_generator::QrCodeEcc;
-
+use rand::Rng;
 use std::{fs::{self, OpenOptions}, io::{Error, Write}};
 #[derive(Debug, Clone)]
 pub struct Color {
@@ -79,7 +79,7 @@ impl QR {
         let mut id:u32 = self.pixels[0][0].1;
         for row in &self.pixels {
             for pix in row {
-                count+=2;
+                // count+=2;
                 if id != pix.1 {
                     if id % 2 == 0 {
                         strings.push(
@@ -96,12 +96,12 @@ impl QR {
                     else {
                         strings.push(
                             format!("newline poly pcfill {} {} {} color {} {} {} pts {} {}  {} {}  {} {}  {} {}",
-                            self.light_colors[(id/2) as usize].0.color.red,
-                            self.light_colors[(id/2) as usize].0.color.green,
-                            self.light_colors[(id/2) as usize].0.color.blue,
-                            self.light_colors[(id/2) as usize].0.color.red,
-                            self.light_colors[(id/2) as usize].0.color.green,
-                            self.light_colors[(id/2) as usize].0.color.blue,
+                            self.light_colors[((id-1)/2) as usize].0.color.red,
+                            self.light_colors[((id-1)/2) as usize].0.color.green,
+                            self.light_colors[((id-1)/2) as usize].0.color.blue,
+                            self.light_colors[((id-1)/2) as usize].0.color.red,
+                            self.light_colors[((id-1)/2) as usize].0.color.green,
+                            self.light_colors[((id-1)/2) as usize].0.color.blue,
                             min, x, count, x, count, x-2, min, x-2,) 
                         );
                     }
@@ -109,19 +109,33 @@ impl QR {
                     id = pix.1;
                     min = count;
                 }
-                
+                count+=2;
             }
             if min != count {
-                strings.push(
-                    format!("newline poly pcfill {} {} {} color {} {} {} pts {} {}  {} {}  {} {}  {} {}",
-                    self.dark_colors[id as usize].0.color.red,
-                    self.dark_colors[id as usize].0.color.green,
-                    self.dark_colors[id as usize].0.color.blue,
-                    self.dark_colors[id as usize].0.color.red,
-                    self.dark_colors[id as usize].0.color.green,
-                    self.dark_colors[id as usize].0.color.blue,
-                    min, x, count, x, count, x-2, min, x-2,) 
-                );
+                if id % 2 == 0 {
+                    strings.push(
+                        format!("newline poly pcfill {} {} {} color {} {} {} pts {} {}  {} {}  {} {}  {} {}",
+                        self.dark_colors[(id/2) as usize].0.color.red,
+                        self.dark_colors[(id/2) as usize].0.color.green,
+                        self.dark_colors[(id/2) as usize].0.color.blue,
+                        self.dark_colors[(id/2) as usize].0.color.red,
+                        self.dark_colors[(id/2) as usize].0.color.green,
+                        self.dark_colors[(id/2) as usize].0.color.blue,
+                        min, x, count, x, count, x-2, min, x-2,) 
+                    );
+                }
+                else {
+                    strings.push(
+                        format!("newline poly pcfill {} {} {} color {} {} {} pts {} {}  {} {}  {} {}  {} {}",
+                        self.light_colors[((id-1)/2) as usize].0.color.red,
+                        self.light_colors[((id-1)/2) as usize].0.color.green,
+                        self.light_colors[((id-1)/2) as usize].0.color.blue,
+                        self.light_colors[((id-1)/2) as usize].0.color.red,
+                        self.light_colors[((id-1)/2) as usize].0.color.green,
+                        self.light_colors[((id-1)/2) as usize].0.color.blue,
+                        min, x, count, x, count, x-2, min, x-2,) 
+                    );
+                }
             }
             min = 0;
             x -= 2; count = 0;
@@ -134,6 +148,51 @@ impl QR {
         file.write_all(joined.as_bytes()).unwrap();
         
         // println!("{}",joined);
+    }
+
+    pub fn gen_colors(& mut self) {
+        let mut perc = 0;
+        let mut count = 0;
+        let mut rng = rand::thread_rng();
+        let mut num = 0;
+        for col in &self.dark_colors {
+            println!("Dark: {} {} {}", col.0.color.red,col.0.color.green,col.0.color.blue);
+        }
+        if self.dark_colors.len() > 1 {
+            for i in 0..(self.dimensions*self.dimensions) {
+                if self.pixels[(i/self.dimensions) as usize][(i % self.dimensions) as usize].1 % 2 == 1 {continue;}
+                num = rng.gen_range(0..99);
+                for col in &self.dark_colors {
+                    if num < perc + col.1 {
+                        print!("{} ", count*2);
+                        self.pixels[(i/self.dimensions) as usize][(i % self.dimensions) as usize].1 = count*2;
+                        break;
+                    }
+                    perc += col.1;
+                    count += 1;
+                }
+                perc = 0;
+                count = 0;
+            }
+        }
+
+        if self.light_colors.len() > 1 {
+            for i in 0..(self.dimensions*self.dimensions) {
+                if self.pixels[(i/self.dimensions) as usize][(i % self.dimensions) as usize].1 % 2 == 0 {continue;}
+                num = rng.gen_range(0..99);
+                for col in &self.light_colors {
+                    if num < perc + col.1 {
+                        print!("{} ", count*2 + 1);
+                        self.pixels[(i/self.dimensions) as usize][(i % self.dimensions) as usize].1 = (count*2)+1;
+                        break;
+                    }
+                    perc += col.1;
+                    count += 1;
+                }
+                perc = 0;
+                count = 0;
+            }
+        }
     }
     
 }

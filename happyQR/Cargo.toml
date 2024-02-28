@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 qrcode-generator = "4.1.9"
 qrcodegen = "1.8.0"
+rand = "0.8.5"
 regex = "1.10.3"
