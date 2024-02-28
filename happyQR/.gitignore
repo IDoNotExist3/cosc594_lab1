@@ -1,1 +1,9 @@
-target/debug/
+*
+
+!.gitignore
+!src/
+!bulldog.jpg
+!blackFox.jpg
+!Makefile
+!README.md
+!Cargo.*

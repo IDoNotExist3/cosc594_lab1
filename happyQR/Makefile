@@ -4,10 +4,9 @@ EX1 = $(./happyQR --dark img 100 blackFox.jpg --light img 100 bulldog.jpg --outp
 COMP1 = $(jgraph -P example1.jgr | ps2pdf - | convert -density 300 - -quality 100 example1.jpg)
 EX2 = $(./happyQR --light col 100 250 200 250 --dark pat 50 "linethickness 1 color 0 0 0 pcfill 0 0 0 ppattern stripe 75" --output example2.jgr "question mark?")
 COMP2 = $(jgraph -P example2.jgr | ps2pdf - | convert -density 300 - -quality 100 example2.jpg)
-all: compile one two three four
+all: compile one two three four five
 compile:
-	RUSTFLAGS=-Awarnings cargo build -q --release
-	cargo build $(RUSTFLAGS)
+	cargo build --release
 	cp target/release/happyQR .
 one: 
 	./happyQR --light col 100 250 200 250 --dark col 100 100 0 100 --output example1.jgr "Example 1?"
