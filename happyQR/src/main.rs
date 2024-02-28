@@ -37,11 +37,8 @@ fn main() {
 
     
     for arg in args {
-        // println!("Arg is {}", arg);
         if &arg[0..1] == "-" {
-            // pair = (Pixel::new(0,0,0,"".to_string(),"".to_string(), 0).unwrap(), 0.0);
             typ = 0;
-            // let (_, [op, str]) = re.captures(arg.as_str()).unwrap().extract();
             match arg.as_str() {
                 "--dark"=> mode = 1,
                 "--light"=> mode = 2,
@@ -142,8 +139,6 @@ fn main() {
         println!("Percentages specified over 100 percent");
         exit(0);
     }
-    // println!("percentage at end is {}", light_colors[0].1);
-    // println!("percentage at end is {}", dark_colors[0].1);
     qr.dark_colors = dark_colors;
     qr.light_colors = light_colors;
     
@@ -153,13 +148,9 @@ fn main() {
     let mut nums:Vec<u32> = Vec::new();
     let mut size:usize = 0;
     
-    // let mut count = 0;
     if let Ok(lines) = read_lines("./temp.ppm") {
-        // Consumes the iterator, returns an (Optional) String
         for line in lines.map_while(Result::ok) {
-            // println!("Count is {}", count);
-            // count += 1;
-            // println!("{}", line);
+
             if first == 0 || first == 2{first += 1; continue;}
             nums = line.split_whitespace()
             .map(|n| {
@@ -176,12 +167,10 @@ fn main() {
                     pixels = Vec::new();
                 }
             }
-            // println!("Size is {}", pixels.len());
         }
     }
     qr.gen_colors();
     qr.draw_jgraph(output);
-    // println!("{:?}", pixels);
 }
 
 
